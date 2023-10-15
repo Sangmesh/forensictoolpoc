@@ -1,11 +1,8 @@
-/******************************************************************************
- * HTML5 Multiple File Uploader Demo                                          *
- ******************************************************************************/
-
 // Constants
 var MAX_UPLOAD_FILE_SIZE = 1024*1024; // 1 MB
 var UPLOAD_URL = "/upload";
-var NEXT_URL   = "/files/";
+var GET_RECORDS   = "/getrecords";
+
 
 // List of pending files to handle when the Upload button is finally clicked.
 var PENDING_FILES  = [];
@@ -92,13 +89,48 @@ function doUpload() {
             }
             else {
                 // Ok! Get the UUID.
-                var uuid = data.msg;
-                window.location = NEXT_URL + uuid;
+                appendRecord(data.msg);
+               
             }
         },
     });
 }
 
+
+getRecordsOnload();
+
+
+
+
+function getRecordsOnload()
+{
+    $.ajax({
+        type: "GET",
+        url: GET_RECORDS,
+        cache: false,
+        success: function(data){
+            data = $.parseJSON(data);
+            arr = data.msg;
+            for (var i = 0; i < arr.length; i++) { appendRecord(arr[i]); }
+            
+        }
+      });
+}
+
+
+function appendRecord(record)
+{
+     html = `<tr>
+            <td>${record.filename}</td>
+            <td>${record.type}</td>
+            <td>${record.size} kb</td>
+            <td>${record.udate}</td>
+            <td>${record.name}</td>
+            <td>${record.email}</td>
+            <td>${record.ssno}</td>
+            </tr>`
+     $('#records').append(html)
+}
 
 function collectFormData() {
     // Go through all the form fields and collect their names/values.
@@ -182,3 +214,4 @@ function initDropbox() {
     $(document).on("dragover", stopDefault);
     $(document).on("drop", stopDefault);
 }
+
